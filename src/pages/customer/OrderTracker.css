@@ -1,0 +1,9 @@
+/* src/pages/customer/OrderTracker.css */
+
+.order-tracker-block {
+  display: block !important;
+}
+
+.ts-line-hidden {
+  display: none !important;
+}

@@ -1,0 +1,21 @@
+/* src/pages/customer/CartSidebar.css */
+
+.cart-overlay {
+  display: none;
+}
+
+.cart-overlay.show {
+  display: block;
+}
+
+.cart-empty-text {
+  text-align: center;
+  color: var(--color-text-muted);
+  margin-top: 40px;
+}
+
+.cart-btn-checkout {
+  width: 100%;
+  padding: 16px;
+  font-size: 18px;
+}

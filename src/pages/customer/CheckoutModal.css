@@ -1,0 +1,58 @@
+/* src/pages/customer/CheckoutModal.css */
+
+.co-overlay-flex {
+  display: flex !important;
+}
+
+.co-input-error {
+  border-color: var(--color-danger) !important;
+}
+
+.co-radio-hidden {
+  display: none;
+}
+
+.co-pay-icon-kasir {
+  background: #dcfce7 !important;
+  color: #16a34a !important;
+}
+
+.co-pay-icon-va {
+  background: #dbeafe !important;
+  color: #1d4ed8 !important;
+}
+
+.co-pay-icon-midtrans {
+  background: #ede9fe !important;
+  color: #7c3aed !important;
+}
+
+.co-pay-detail-block {
+  display: block !important;
+}
+
+.co-pay-icon-color-va {
+  color: #1d4ed8;
+}
+
+.co-pay-icon-color-midtrans {
+  color: #7c3aed;
+}
+
+/* Order Type */
+.co-type-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.co-type-icon-dine {
+  background: #fee2e2 !important;
+  color: #ef4444 !important;
+}
+
+.co-type-icon-take {
+  background: #fef3c7 !important;
+  color: #d97706 !important;
+}

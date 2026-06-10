@@ -1,0 +1,225 @@
+.dr-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(20, 8, 4, 0.6);
+  backdrop-filter: blur(8px);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dr-overlay.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.dr-modal {
+  width: 100%;
+  max-width: 380px;
+  display: flex;
+  flex-direction: column;
+  transform: translateY(30px) scale(0.95);
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.dr-overlay.show .dr-modal {
+  transform: translateY(0) scale(1);
+}
+
+/* Zigzag edge for thermal receipt effect */
+.dr-edge-top {
+  height: 12px;
+  background: radial-gradient(circle, transparent, transparent 4px, white 4px, white);
+  background-size: 20px 20px;
+  background-position: -10px -10px;
+  filter: drop-shadow(0 -4px 8px rgba(0,0,0,0.1));
+}
+
+.dr-edge-bottom {
+  height: 12px;
+  background: radial-gradient(circle, transparent, transparent 4px, white 4px, white);
+  background-size: 20px 20px;
+  background-position: -10px 10px;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));
+}
+
+.dr-content {
+  background: white;
+  padding: 24px 32px 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+}
+
+.dr-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.dr-icon-success {
+  font-size: 48px;
+  color: #10b981;
+  margin-bottom: 16px;
+  animation: bounceIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  animation-delay: 0.2s;
+  opacity: 0;
+  transform: scale(0.5);
+}
+
+@keyframes bounceIn {
+  to { opacity: 1; transform: scale(1); }
+}
+
+.dr-title {
+  font-size: 22px;
+  font-weight: 900;
+  color: var(--color-dark);
+  margin-bottom: 6px;
+  letter-spacing: -0.5px;
+}
+
+.dr-subtitle {
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+.dr-divider-dash {
+  height: 0;
+  border-bottom: 2px dashed #e2e8f0;
+  margin: 16px 0;
+}
+
+.dr-info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px 12px;
+}
+
+.dr-label {
+  font-size: 11px;
+  color: var(--color-text-muted);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.dr-val {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-dark);
+}
+
+.dr-highlight {
+  color: var(--color-primary);
+  font-size: 18px;
+  font-weight: 900;
+}
+
+.dr-items {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.dr-item-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  font-size: 14px;
+}
+
+.dr-item-left {
+  display: flex;
+  gap: 8px;
+  flex: 1;
+  padding-right: 16px;
+}
+
+.dr-item-qty {
+  font-weight: 900;
+  color: var(--color-primary);
+  min-width: 20px;
+}
+
+.dr-item-name {
+  font-weight: 700;
+  color: var(--color-dark);
+}
+
+.dr-item-price {
+  font-weight: 800;
+  color: var(--color-text-muted);
+}
+
+.dr-total-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+  margin-bottom: 16px;
+}
+
+.dr-total-row span:first-child {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--color-dark);
+}
+
+.dr-total-amount {
+  font-size: 20px;
+  font-weight: 900;
+  color: var(--color-primary);
+}
+
+.dr-payment-note {
+  background: #f8fafc;
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-size: 12px;
+  color: #334155;
+  font-weight: 700;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.dr-note-kasir {
+  background: #fff1f2;
+  color: #e11d48;
+}
+
+.dr-btn-track {
+  margin-top: 24px;
+  background: var(--color-dark);
+  color: white;
+  border: none;
+  padding: 18px;
+  border-radius: 16px;
+  font-size: 16px;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 10px 24px rgba(20, 8, 4, 0.2);
+  transition: all 0.3s;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+.dr-btn-track:hover {
+  transform: translateY(-4px);
+  background: var(--color-primary);
+  box-shadow: 0 14px 32px rgba(155, 17, 30, 0.3);
+}
