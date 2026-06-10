@@ -324,3 +324,12 @@
   background: var(--color-text-muted) !important;
   cursor: not-allowed;
 }
+
+@media (max-width: 768px) {
+  .homepage-hero {
+    flex-direction: column;
+  }
+  .homepage-hero-info {
+    width: auto;
+  }
+}
