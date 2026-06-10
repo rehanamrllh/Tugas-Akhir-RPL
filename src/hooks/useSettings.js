@@ -1,33 +1,28 @@
 import { useState, useEffect } from 'react';
-import { getSettings, setSettingsObj } from '../lib/storage';
+import { db } from '../lib/firebase';
+import { ref, onValue, set } from 'firebase/database';
+import { defaultSettings } from '../lib/storage';
 
 export function useSettings() {
-  const [settings, setSettingsState] = useState(getSettings());
+  const [settings, setSettingsState] = useState(defaultSettings);
 
   useEffect(() => {
-    const handleStorage = (e) => {
-      if (e.key === 'twicecafe_settings') {
-        setSettingsState(getSettings());
+    const settingsRef = ref(db, 'settings');
+    const unsubscribe = onValue(settingsRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        setSettingsState(data);
+      } else {
+        // Seed default settings
+        set(settingsRef, defaultSettings);
       }
-    };
-    
-    const handleCustomEvent = () => {
-      setSettingsState(getSettings());
-    };
+    });
 
-    window.addEventListener('storage', handleStorage);
-    window.addEventListener('settingsUpdated', handleCustomEvent);
-    
-    return () => {
-      window.removeEventListener('storage', handleStorage);
-      window.removeEventListener('settingsUpdated', handleCustomEvent);
-    };
+    return () => unsubscribe();
   }, []);
 
   const updateSettings = (newSettings) => {
-    setSettingsObj(newSettings);
-    setSettingsState(newSettings);
-    window.dispatchEvent(new Event('settingsUpdated'));
+    set(ref(db, 'settings'), newSettings);
   };
 
   return { settings, updateSettings };

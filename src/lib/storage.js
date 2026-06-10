@@ -1,4 +1,4 @@
-import { defaultMenuItems, defaultTables } from './utils';
+export { defaultMenuItems, defaultTables } from './utils';
 
 const KEYS = {
   MENU: 'twicecafe_menu',

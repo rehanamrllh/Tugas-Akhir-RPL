@@ -1,51 +1,48 @@
-import { useState, useEffect, useCallback } from 'react';
-import { getOrders, setOrders, KEYS } from '../lib/storage';
+import { useState, useEffect } from 'react';
+import { db } from '../lib/firebase';
+import { ref, onValue, set, update, remove } from 'firebase/database';
 
 export function useOrders() {
   const [orders, setOrdersState] = useState([]);
 
-  const load = useCallback(() => setOrdersState(getOrders()), []);
-
   useEffect(() => {
-    load();
-    const handler = (e) => {
-      if (e.key === KEYS.ORDERS || e.key === 'twicecafe_lastStatusUpdate') load();
-    };
-    window.addEventListener('storage', handler);
-    return () => window.removeEventListener('storage', handler);
-  }, [load]);
+    const ordersRef = ref(db, 'orders');
+    const unsubscribe = onValue(ordersRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        const ordersArray = Object.values(data);
+        setOrdersState(ordersArray);
+      } else {
+        setOrdersState([]);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   const createOrder = (orderData) => {
+    const id = Date.now().toString();
     const newOrder = {
       ...orderData,
-      id: Date.now().toString(),
+      id,
       waktu: new Date().toISOString(),
       status: 'Baru',
     };
-    const updated = [...orders, newOrder];
-    setOrders(updated);
-    setOrdersState(updated);
+    set(ref(db, `orders/${id}`), newOrder);
     return newOrder;
   };
 
   const updateOrderStatus = (id, status) => {
-    const updated = orders.map(o => o.id === id ? { ...o, status } : o);
-    setOrders(updated);
-    setOrdersState(updated);
-    localStorage.setItem('twicecafe_lastStatusUpdate', JSON.stringify({ orderId: id, status, ts: Date.now() }));
+    update(ref(db, `orders/${id}`), { status });
   };
 
   const updatePaymentStatus = (id, statusPembayaran) => {
-    const updated = orders.map(o => o.id === id ? { ...o, statusPembayaran, paymentStatus: statusPembayaran } : o);
-    setOrders(updated);
-    setOrdersState(updated);
+    update(ref(db, `orders/${id}`), { statusPembayaran, paymentStatus: statusPembayaran });
   };
 
   const deleteOrder = (id) => {
-    const updated = orders.filter(o => o.id !== id);
-    setOrders(updated);
-    setOrdersState(updated);
+    remove(ref(db, `orders/${id}`));
   };
 
-  return { orders, createOrder, updateOrderStatus, updatePaymentStatus, deleteOrder, reload: load };
+  return { orders, createOrder, updateOrderStatus, updatePaymentStatus, deleteOrder };
 }
