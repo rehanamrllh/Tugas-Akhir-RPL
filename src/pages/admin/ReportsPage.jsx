@@ -160,8 +160,9 @@ export default function ReportsPage() {
       </div>
 
       <div className="white-card reports-table-card">
-        <table>
-          <thead>
+        <div className="table-responsive">
+          <table>
+            <thead>
             <tr>
               <th>ID Pesanan</th>
               <th>Waktu</th>
@@ -187,7 +188,8 @@ export default function ReportsPage() {
               ))
             )}
           </tbody>
-        </table>
+          </table>
+        </div>
       </div>
     </section>
   );

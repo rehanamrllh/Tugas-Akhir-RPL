@@ -150,31 +150,31 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* {filter === 'Semua' && itemsToShow.length > 0 && (
+      {filter === 'Semua' && itemsToShow.length > 0 && (
         <section className="homepage-recommendations">
           <div className="homepage-rec-header">
             <div>
-              <span className="section-label">REKOMENDASI</span>
-              <h3>Menu favorit hari ini</h3>
+              <span className="section-label">PILIHAN TERBAIK</span>
+              <h3>Menu Favorit Hari Ini</h3>
             </div>
-            <i className="fa-solid fa-star homepage-rec-star"></i>
+            <i className="fa-solid fa-fire homepage-rec-star"></i>
           </div>
           <div className="homepage-rec-container" id="recContainer">
             {itemsToShow.map(item => (
               item.tersedia !== false && (
                 <div key={item.id} className="homepage-rec-card">
-                  <img src={item.gambar} alt={item.nama} className="homepage-rec-img" />
+                  <img src={item.gambar || 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=150&h=150&fit=crop'} alt={item.nama} className="homepage-rec-img" />
                   <div className="homepage-rec-info">
                     <div className="homepage-rec-title">{item.nama}</div>
                     <div className="homepage-rec-price">{formatRp(item.harga)}</div>
-                    <button className="homepage-rec-btn-add" onClick={() => addToCart(item)}>+ Tambah</button>
+                    <button className="homepage-rec-btn-add" onClick={() => addToCart(item)}><i className="fa-solid fa-plus"></i> Tambah</button>
                   </div>
                 </div>
               )
             ))}
           </div>
         </section>
-      )} */}
+      )}
 
       <div className="menu-container">
         <div className="menu-grid" id="menuGrid">

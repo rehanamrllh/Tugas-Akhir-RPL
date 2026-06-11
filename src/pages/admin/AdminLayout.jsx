@@ -86,7 +86,7 @@ export default function AdminLayout() {
               </div>
             </Link>
           ))}
-          <div style={{ marginTop: 'auto', padding: '16px' }}>
+          <div style={{ marginTop: 'auto', padding: '16px' }} className="admin-logout-container">
             <button onClick={logout} className="nav-item" style={{ width: '100%', background: 'var(--color-danger-bg)', color: 'var(--color-danger)', border: 'none', cursor: 'pointer' }}>
               <div className="nav-icon"><i className="fa-solid fa-right-from-bracket"></i></div>
               <div>
