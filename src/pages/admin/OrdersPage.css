@@ -258,3 +258,18 @@
   transform: translateY(-2px);
   box-shadow: 0 8px 16px rgba(220, 38, 38, 0.1);
 }
+
+@media (max-width: 768px) {
+  .oc-info-row {
+    grid-template-columns: 1fr !important;
+  }
+  .oc-top-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .oc-item-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}

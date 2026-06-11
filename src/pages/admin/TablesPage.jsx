@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useTables } from '../../hooks/useTables';
 import { useOrders } from '../../hooks/useOrders';
 import './TablesPage.css';
@@ -11,7 +12,18 @@ export default function TablesPage() {
   const [formData, setFormData] = useState({ id: '', desc: '' });
   const [error, setError] = useState('');
 
+  const location = useLocation();
+  const navigate = useNavigate();
+
   const baseUrl = window.location.origin; // e.g. http://localhost:5173
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if (params.get('action') === 'add') {
+      openModal();
+      navigate('/admin/dashboard/tables', { replace: true });
+    }
+  }, [location.search, navigate]);
 
   const getTableStatus = (tableId) => {
     const activeOrders = orders.filter(o => o.meja === tableId && (o.status === 'Baru' || o.status === 'Diproses' || o.status === 'Siap'));

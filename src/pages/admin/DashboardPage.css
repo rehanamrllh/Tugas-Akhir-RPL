@@ -506,3 +506,34 @@
   color: white;
   box-shadow: 0 6px 16px rgba(249, 115, 22, 0.2);
 }
+
+@media (max-width: 992px) {
+  .dash-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .dashboard-stat-grid-3 {
+    grid-template-columns: 1fr !important;
+  }
+  .stat-4-grid {
+    grid-template-columns: 1fr 1fr !important; /* Keep 2 cols if possible, else 1 */
+  }
+}
+@media (max-width: 768px) {
+  .compact-order-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .compact-order-header {
+    flex-wrap: wrap;
+  }
+  .compact-order-right {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+@media (max-width: 480px) {
+  .stat-4-grid {
+    grid-template-columns: 1fr !important;
+  }
+}

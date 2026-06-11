@@ -327,8 +327,6 @@
 .homepage-filter-pills .filter-pill:hover {
   border-color: var(--color-primary);
   color: var(--color-primary);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(155, 17, 30, 0.08);
 }
 
 .homepage-filter-pills .filter-pill.active {

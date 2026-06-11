@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Outlet, useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { useMenu } from '../../hooks/useMenu';
@@ -24,6 +24,12 @@ export default function AdminLayout() {
   const { orders } = useOrders();
   const { tables } = useTables();
   const { settings } = useSettings();
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const handleRefresh = () => {
+    setIsRefreshing(true);
+    setTimeout(() => setIsRefreshing(false), 800);
+  };
 
   useEffect(() => {
     if (!isAuthenticated) navigate('/admin');
@@ -86,15 +92,6 @@ export default function AdminLayout() {
               </div>
             </Link>
           ))}
-          <div style={{ marginTop: 'auto', padding: '16px' }} className="admin-logout-container">
-            <button onClick={logout} className="nav-item" style={{ width: '100%', background: 'var(--color-danger-bg)', color: 'var(--color-danger)', border: 'none', cursor: 'pointer' }}>
-              <div className="nav-icon"><i className="fa-solid fa-right-from-bracket"></i></div>
-              <div>
-                <span className="nav-label">Logout</span>
-                <span className="nav-desc">Keluar dari admin</span>
-              </div>
-            </button>
-          </div>
         </nav>
         
         <div className="sidebar-status aes-sidebar-status">
@@ -117,6 +114,16 @@ export default function AdminLayout() {
             </div>
           </div>
         </div>
+
+        <div style={{ padding: '16px', marginTop: 'auto' }} className="admin-logout-container">
+          <button onClick={logout} className="nav-item" style={{ width: '100%', background: 'var(--color-danger-bg)', color: 'var(--color-danger)', border: 'none', cursor: 'pointer' }}>
+            <div className="nav-icon"><i className="fa-solid fa-right-from-bracket"></i></div>
+            <div>
+              <span className="nav-label">Logout</span>
+              <span className="nav-desc">Keluar dari admin</span>
+            </div>
+          </button>
+        </div>
       </aside>
 
       <div className="main-wrapper">
@@ -129,7 +136,9 @@ export default function AdminLayout() {
               <p className="header-desc">Kelola operasional cafe dari satu dashboard: pesanan realtime, menu, QR meja.</p>
             </div>
             <div className="header-actions">
-              <button className="btn-hdr white" onClick={() => window.location.reload()}><i className="fa-solid fa-rotate-right"></i> Refresh</button>
+              <button className="btn-hdr white" onClick={handleRefresh} disabled={isRefreshing}>
+                <i className={`fa-solid fa-rotate-right ${isRefreshing ? 'fa-spin' : ''}`}></i> {isRefreshing ? 'Menyegarkan...' : 'Refresh'}
+              </button>
               <Link to="/" className="btn-hdr dark admin-layout-link-no-decor"><i className="fa-solid fa-eye"></i> Customer</Link>
             </div>
           </div>

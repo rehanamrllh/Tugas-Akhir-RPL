@@ -2,11 +2,13 @@ import { useState, useEffect } from 'react';
 import { formatRp } from '../../lib/utils';
 import { useCart } from '../../hooks/useCart';
 import { useOrders } from '../../hooks/useOrders';
+import { useMenu } from '../../hooks/useMenu';
 import './CheckoutModal.css';
 
 export default function CheckoutModal({ isOpen, onClose, onSuccess }) {
   const { cart, cartTotal, clearCart } = useCart();
   const { createOrder } = useOrders();
+  const { menuItems, updateMenuItem } = useMenu();
 
   const [nama, setNama] = useState('');
   const [noHp, setNoHp] = useState('');
@@ -50,6 +52,20 @@ export default function CheckoutModal({ isOpen, onClose, onSuccess }) {
     };
 
     const newOrder = createOrder(orderData);
+
+    // Decrease stock for each item
+    cart.forEach(cartItem => {
+      const menu = menuItems.find(m => m.id === cartItem.menuId);
+      if (menu && typeof menu.stock === 'number') {
+        const newStock = menu.stock - cartItem.qty;
+        updateMenuItem(menu.id, { 
+          ...menu, 
+          stock: newStock,
+          tersedia: newStock > 0
+        });
+      }
+    });
+
     clearCart();
     setNama('');
     setNoHp('');

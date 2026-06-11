@@ -9,13 +9,14 @@ import CheckoutModal from './CheckoutModal';
 import OrderTracker from './OrderTracker';
 import DigitalReceiptModal from './DigitalReceiptModal';
 import './HomePage.css';
+import twLogo from '../../assets/tw.jpg';
 
 export default function HomePage() {
   const { menuItems } = useMenu();
   const { cartCount, addToCart } = useCart();
   const { categories } = useCategories();
   const { settings } = useSettings();
-  const displayCategories = ['Semua', ...categories];
+  const displayCategories = Array.from(new Set(['Semua', ...categories]));
   
   const [filter, setFilter] = useState('Semua');
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -57,8 +58,8 @@ export default function HomePage() {
     <>
       <header className="topbar">
         <div className="topbar-left">
-          <div className="store-icon" style={{ overflow: 'hidden', padding: settings.logoUrl ? 0 : undefined }}>
-            {settings.logoUrl ? <img src={settings.logoUrl} alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <i className="fa-solid fa-mug-hot"></i>}
+          <div className="store-icon" style={{ overflow: 'hidden', padding: 0 }}>
+            <img src={twLogo} alt="Logo Twice Cafe" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
           </div>
           <div>
             <h2 className="topbar-name">{settings.namaToko || 'Twice Cafe'}</h2>

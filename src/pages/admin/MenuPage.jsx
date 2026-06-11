@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useMenu } from '../../hooks/useMenu';
 import { useCategories } from '../../hooks/useCategories';
 import { formatRp } from '../../lib/utils';
@@ -14,24 +15,38 @@ export default function MenuPage() {
   const [search, setSearch] = useState('');
   const [newCat, setNewCat] = useState('');
 
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if (params.get('action') === 'add') {
+      openModal();
+      navigate('/admin/dashboard/menu', { replace: true });
+    }
+  }, [location.search, navigate]);
+
   const [formData, setFormData] = useState({
-    nama: '', kategori: categories[0] || 'Kopi', harga: '', deskripsi: '', badge: '', gambar: '', tersedia: true
+    nama: '', kategori: categories[0] || 'Kopi', harga: '', deskripsi: '', badge: '', gambar: '', tersedia: true, stock: ''
   });
 
   const openModal = (item = null) => {
     if (item) {
       setEditingItem(item);
-      setFormData({ ...item });
+      setFormData({ stock: '', ...item });
     } else {
       setEditingItem(null);
-      setFormData({ nama: '', kategori: categories[0] || 'Kopi', harga: '', deskripsi: '', badge: '', gambar: '', tersedia: true });
+      setFormData({ nama: '', kategori: categories[0] || 'Kopi', harga: '', deskripsi: '', badge: '', gambar: '', tersedia: true, stock: '' });
     }
     setIsModalOpen(true);
   };
 
   const handleSave = (e) => {
     e.preventDefault();
-    const dataToSave = { ...formData, harga: parseInt(formData.harga) || 0 };
+    const dataToSave = { ...formData, harga: parseInt(formData.harga) || 0, stock: parseInt(formData.stock) || 0 };
+    if (dataToSave.stock <= 0) {
+      dataToSave.tersedia = false;
+    }
     if (editingItem) updateMenuItem(editingItem.id, dataToSave);
     else addMenuItem(dataToSave);
     setIsModalOpen(false);
@@ -79,7 +94,10 @@ export default function MenuPage() {
               
               <div className="menupage-price-row">
                 <div className="menupage-price">{formatRp(item.harga)}</div>
-                {item.badge && <span className="menupage-item-badge">{item.badge}</span>}
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                  {item.stock !== undefined && item.stock !== '' && <span className="menupage-item-stock" style={{fontSize: '11px', fontWeight: 'bold', color: 'var(--color-text-muted)'}}>Sisa: {item.stock}</span>}
+                  {item.badge && <span className="menupage-item-badge">{item.badge}</span>}
+                </div>
               </div>
               
               <div className="menupage-action-grid">
@@ -130,9 +148,18 @@ export default function MenuPage() {
                       {categories.map(c => <option key={c} value={c}>{c}</option>)}
                     </select>
                   </div>
-                  <div className="form-group">
-                    <label>Harga (Rp) *</label>
-                    <input type="number" className="form-control" value={formData.harga} onChange={e => setFormData({...formData, harga: e.target.value})} required />
+                  <div className="form-group menupage-price-stock-grid">
+                    <div>
+                      <label>Harga (Rp) *</label>
+                      <input type="number" className="form-control" value={formData.harga} onChange={e => setFormData({...formData, harga: e.target.value})} required />
+                    </div>
+                    <div>
+                      <label>Stok (opsional)</label>
+                      <input type="number" className="form-control" value={formData.stock} onChange={e => {
+                        const val = e.target.value;
+                        setFormData({...formData, stock: val, tersedia: parseInt(val) <= 0 ? false : formData.tersedia});
+                      }} />
+                    </div>
                   </div>
                   <div className="form-group">
                     <label>Deskripsi</label>
@@ -144,7 +171,7 @@ export default function MenuPage() {
                   </div>
                 </div>
               </div>
-              <div className="modal-footer" style={{ borderTop: 'none', padding: '0 32px 32px' }}>
+              <div className="modal-footer menupage-modal-footer">
                 <button type="button" className="btn-outline menupage-btn-kelola" onClick={() => setIsModalOpen(false)}>Batal</button>
                 <button type="submit" className="btn-primary menupage-btn-tambah">Simpan Menu</button>
               </div>

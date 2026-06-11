@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useOrders } from '../../hooks/useOrders';
 import { useMenu } from '../../hooks/useMenu';
 import { useTables } from '../../hooks/useTables';
@@ -13,6 +14,7 @@ export default function DashboardPage() {
   const { orders, updateOrderStatus, updatePaymentStatus, deleteOrder } = useOrders();
   const { menuItems } = useMenu();
   const { tables } = useTables();
+  const navigate = useNavigate();
 
   const today = new Date().toISOString().split('T')[0];
   const todayOrders = orders.filter(o => o.waktu.startsWith(today));
@@ -237,10 +239,6 @@ export default function DashboardPage() {
             <h3 className="dashboard-chart-title">Tren 7 hari terakhir</h3>
             <p className="dashboard-chart-subtitle">Omzet dihitung dari order lunas dan selesai.</p>
           </div>
-          <div className="dashboard-total-wrapper">
-            <div className="dashboard-total-label">TOTAL 7 HARI</div>
-            <div className="dashboard-total-value">{formatRp(chartDataObj.omzet7)}</div>
-          </div>
         </div>
         
         <div className="chart-wrapper">
@@ -286,14 +284,14 @@ export default function DashboardPage() {
       <div className="white-card">
         <div className="dashboard-section-header">
           <h3 className="dashboard-section-title">Pesanan terbaru</h3>
-          <button className="btn-hdr white" onClick={() => window.location.href='/admin/dashboard/orders'}>Lihat semua</button>
+          <button className="btn-hdr white" onClick={() => navigate('/admin/dashboard/orders')}>Lihat semua</button>
         </div>
         <div className="order-list compact-order-list">
           {recentOrders.length === 0 ? (
             <div style={{ padding: '20px', textAlign: 'center', color: 'var(--color-text-muted)' }}>Belum ada pesanan masuk.</div>
           ) : (
             recentOrders.map(o => (
-              <div key={o.id} className="compact-order-row" onClick={() => window.location.href='/admin/dashboard/orders'} style={{ cursor: 'pointer' }}>
+              <div key={o.id} className="compact-order-row" onClick={() => navigate('/admin/dashboard/orders')} style={{ cursor: 'pointer' }}>
                 <div className="compact-order-left">
                   <div className="compact-order-header">
                     <span className="compact-order-id">#ORD-{o.id}</span>
@@ -362,9 +360,9 @@ export default function DashboardPage() {
       <div className="dash-grid">
         <div className="red-card">
           <div className="red-card-title">Kelola cepat</div>
-          <button className="red-btn" onClick={() => window.location.href='/admin/dashboard/menu'}><i className="fa-solid fa-plus"></i> Tambah Menu</button>
-          <button className="red-btn" onClick={() => window.location.href='/admin/dashboard/tables'}><i className="fa-solid fa-plus"></i> Tambah Meja QR</button>
-          <button className="red-btn dark" onClick={() => window.location.href='/admin/dashboard/reports'}><i className="fa-solid fa-file-export"></i> Lihat Laporan</button>
+          <button className="red-btn" onClick={() => navigate('/admin/dashboard/menu?action=add')}><i className="fa-solid fa-plus"></i> Tambah Menu</button>
+          <button className="red-btn" onClick={() => navigate('/admin/dashboard/tables?action=add')}><i className="fa-solid fa-plus"></i> Tambah Meja QR</button>
+          <button className="red-btn dark" onClick={() => navigate('/admin/dashboard/reports')}><i className="fa-solid fa-file-export"></i> Lihat Laporan</button>
         </div>
         
         <div className="white-card">
