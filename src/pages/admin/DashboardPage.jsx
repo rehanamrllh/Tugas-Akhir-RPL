@@ -237,7 +237,6 @@ export default function DashboardPage() {
         <div className="dashboard-chart-header">
           <div>
             <h3 className="dashboard-chart-title">Tren 7 hari terakhir</h3>
-            <p className="dashboard-chart-subtitle">Omzet dihitung dari order lunas dan selesai.</p>
           </div>
         </div>
         

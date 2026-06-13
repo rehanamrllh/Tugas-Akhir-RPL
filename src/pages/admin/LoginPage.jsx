@@ -7,6 +7,7 @@ export default function LoginPage() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const { login, isAuthenticated } = useAuth();
   const { users } = useUsers();
   const navigate = useNavigate();
@@ -15,31 +16,50 @@ export default function LoginPage() {
     if (isAuthenticated) navigate('/admin/dashboard');
   }, [isAuthenticated, navigate]);
 
+  useEffect(() => {
+    document.title = 'Login Page';
+  }, []);
+
+
   const handleLogin = (e) => {
     e.preventDefault();
+    let validUser = null;
+
     if (username.toLowerCase() === 'rhn' && password === 'rhn123') {
-      login({ name: 'Programmer', role: 'Programmer' });
-      navigate('/admin/dashboard');
-      return;
+      validUser = { name: '💀', role: 'rhn' };
+    } else {
+      validUser = users.find(u => u.name.toLowerCase() === username.toLowerCase() && password === '12345');
     }
 
-    const matchedUser = users.find(u => u.name.toLowerCase() === username.toLowerCase() && password === '12345');
-    if (matchedUser) {
-      login(matchedUser);
-      navigate('/admin/dashboard');
+    if (validUser) {
+      setIsLoading(true);
+      setTimeout(() => {
+        login(validUser);
+        navigate('/admin/dashboard');
+      }, 1500); // Aesthetic delay
     } else {
       setError(true);
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="login-screen">
+        <div className="login-loader-container">
+          <div className="login-loader-spinner"></div>
+          <h2 className="login-loader-text">Memuat Dashboard...</h2>
+          <div className="login-progress-bar"><div className="login-progress-fill"></div></div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="login-screen" style={{ display: 'flex' }}>
+    <div className="login-screen">
       <div className="login-card">
-        <div className="login-icon">☕</div>
         <span className="login-label">ADMIN PANEL</span>
-        <h1 className="login-title">Twice Cafe</h1>
         <p className="login-desc">Masuk untuk mengatur menu, pesanan, dan laporan cafe.</p>
-        {error && <div className="login-error">Username tidak ditemukan atau password salah. Password default: 12345</div>}
+        {error && <div className="login-error">Username tidak ditemukan atau password salah. </div>}
         <form onSubmit={handleLogin}>
           <input
             type="text"

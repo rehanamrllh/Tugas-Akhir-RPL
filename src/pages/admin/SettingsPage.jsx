@@ -32,9 +32,9 @@ export default function SettingsPage() {
     e.preventDefault();
     if (newUser.name.trim()) {
       if (newUser.id) {
-        updateUser(newUser.id, { name: newUser.name, role: newUser.role });
+        updateUser(newUser.id, { name: newUser.name, role: newUser.role, password: newUser.password });
       } else {
-        addUser({ name: newUser.name, role: newUser.role, password: '123' });
+        addUser({ name: newUser.name, role: newUser.role, password: newUser.password });
       }
       setNewUser({ id: null, name: '', role: 'Kasir', password: '123' });
       setIsRoleModalOpen(false);
@@ -177,6 +177,10 @@ export default function SettingsPage() {
                     <option value="Kasir">Kasir</option>
                     <option value="Staf Dapur">Staf Dapur</option>
                   </select>
+                </div>
+                <div className="form-group">
+                  <label>Password</label>
+                  <input type="text" className="form-control" value={newUser.password || ''} onChange={e => setNewUser({...newUser, password: e.target.value})} required placeholder="Password" />
                 </div>
               </div>
               <div className="aes-modal-footer">

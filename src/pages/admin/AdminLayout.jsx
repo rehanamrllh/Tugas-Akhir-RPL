@@ -47,7 +47,7 @@ export default function AdminLayout() {
   // RBAC Navigation Filtering
   const role = user.role;
   const filteredNavItems = NAV_ITEMS.filter(item => {
-    if (role === 'Programmer') return true;
+    if (role === 'rhn') return true;
     if (role === 'Pemilik Kafe') return item.path === '/admin/dashboard' || item.path === '/admin/dashboard/reports';
     if (role === 'Kasir') return item.path === '/admin/dashboard' || item.path === '/admin/dashboard/orders' || item.path === '/admin/dashboard/tables';
     if (role === 'Staf Dapur') return item.path === '/admin/dashboard/orders';
@@ -116,7 +116,7 @@ export default function AdminLayout() {
         </div>
 
         <div style={{ padding: '16px', marginTop: 'auto' }} className="admin-logout-container">
-          <button onClick={logout} className="nav-item" style={{ width: '100%', background: 'var(--color-danger-bg)', color: 'var(--color-danger)', border: 'none', cursor: 'pointer' }}>
+          <button onClick={() => { logout(); navigate('/admin', { replace: true }); }} className="nav-item" style={{ width: '100%', background: 'var(--color-danger-bg)', color: 'var(--color-danger)', border: 'none', cursor: 'pointer' }}>
             <div className="nav-icon"><i className="fa-solid fa-right-from-bracket"></i></div>
             <div>
               <span className="nav-label">Logout</span>

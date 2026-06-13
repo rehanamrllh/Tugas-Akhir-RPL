@@ -50,9 +50,6 @@ export default function OrdersPage() {
           <div className="orders-mgmt-label">ORDER MANAGEMENT</div>
           <h2 className="orders-mgmt-title">Pesanan Masuk</h2>
         </div>
-        <button className="btn-refresh-order" onClick={() => window.location.reload()}>
-          <i className="fa-solid fa-rotate-right"></i> Refresh Order
-        </button>
       </div>
 
       <div className="full-order-list">
@@ -98,7 +95,11 @@ export default function OrdersPage() {
                     <div>
                       <div className="oc-info-label">METODE PEMBAYARAN</div>
                       <div className="oc-info-val">{getPaymentMethodLabel(o)}</div>
-                      <div className="oc-info-sub">{o.paymentRef ? `Ref: ${o.paymentRef}` : 'Menunggu pilihan bayar'}</div>
+                      <div className="oc-info-sub">
+                        {o.paymentRef ? `Ref: ${o.paymentRef}` : 
+                         (o.paymentMethod === 'Bayar di Kasir' || o.metodePembayaran === 'Bayar di Kasir') ? 'Transaksi langsung di kasir' :
+                         (o.paymentMethod || o.metodePembayaran) ? 'Menunggu pembayaran' : 'Menunggu pilihan pelanggan'}
+                      </div>
                     </div>
                   </div>
                   <div className="oc-info-box">
@@ -106,7 +107,11 @@ export default function OrdersPage() {
                     <div>
                       <div className="oc-info-label">STATUS PEMBAYARAN</div>
                       <div className="oc-info-val">{getPaymentStatusDisplay(payStatusRaw)}</div>
-                      <div className="oc-info-sub">Sudah masuk email</div>
+                      <div className="oc-info-sub">
+                        {payStatusRaw === 'lunas' ? 'Pembayaran telah diterima' : 
+                         payStatusRaw === 'menunggu' ? 'Menunggu verifikasi admin' : 
+                         'Tagihan belum dibayar'}
+                      </div>
                     </div>
                   </div>
                   <div className="oc-info-box">
