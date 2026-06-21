@@ -88,7 +88,7 @@
   box-shadow: 0 8px 24px rgba(155, 17, 30, 0.3);
 }
 
-.menu-grid {
+.menupage-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 24px;
@@ -513,7 +513,7 @@
 }
 
 @media (max-width: 768px) {
-  .menu-grid {
+  .menupage-grid {
     grid-template-columns: 1fr !important;
   }
   .menupage-header {

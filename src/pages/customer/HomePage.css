@@ -305,12 +305,11 @@
 }
 
 .homepage-filter-pills {
-  margin: 0;
-  padding: 0;
+  margin: 0 -4px;
+  padding: 8px 4px 16px 4px;
   display: flex;
   gap: 12px;
   overflow-x: auto;
-  padding-bottom: 4px;
 }
 .homepage-filter-pills::-webkit-scrollbar { display: none; }
 
@@ -324,16 +323,20 @@
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.homepage-filter-pills .filter-pill:hover {
-  border-color: var(--color-primary);
-  color: var(--color-primary);
+.homepage-filter-pills .filter-pill:hover:not(.active) {
+  background: white !important;
+  color: var(--color-primary) !important;
+  border-color: var(--color-primary) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 12px rgba(155, 17, 30, 0.1) !important;
 }
 
 .homepage-filter-pills .filter-pill.active {
-  background: var(--color-primary);
-  color: white;
-  border-color: var(--color-primary);
-  box-shadow: 0 6px 16px rgba(155, 17, 30, 0.2);
+  background: var(--color-primary) !important;
+  color: white !important;
+  border-color: var(--color-primary) !important;
+  box-shadow: 0 6px 16px rgba(155, 17, 30, 0.2) !important;
+  transform: translateY(-2px) !important;
 }
 
 .homepage-filter-pills .filter-pill i {
@@ -447,7 +450,18 @@
   transform: translateY(-2px);
 }
 
-/* Sold Out Enhancements */
+/* Sold Out & Feedback Enhancements */
+.btn-added-feedback {
+  background: #2b8a3e !important;
+  color: white !important;
+  border-color: #2b8a3e !important;
+  transform: scale(1.05) !important;
+  box-shadow: 0 8px 24px rgba(43, 138, 62, 0.4) !important;
+}
+
+.homepage-btn-disabled, .btn-add {
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
 .homepage-sold-out-badge {
   background: rgba(42, 9, 8, 0.8) !important;
   backdrop-filter: blur(4px);
@@ -485,15 +499,137 @@
 }
 
 @media (max-width: 768px) {
-  .homepage-hero-title {
-    font-size: 2.2rem;
-  }
-  .homepage-menu-filter {
-    padding: 16px 20px;
-    border-radius: 24px;
-  }
-  .homepage-recommendations {
-    padding: 24px 20px;
-    border-radius: 24px;
-  }
+  .homepage-hero { padding: 0 10px; margin: 12px auto; }
+  .homepage-hero-content { padding: 20px; border-radius: 20px; }
+  .homepage-hero-title { font-size: 1.8rem; margin-bottom: 8px; line-height: 1.1; }
+  .homepage-hero-desc { font-size: 0.9rem; }
+  .homepage-label-small { padding: 4px 10px; font-size: 9px; margin-bottom: 12px; }
+  .homepage-chip { padding: 6px 12px; font-size: 0.75rem; }
+  .homepage-category-chips { margin: 16px 0; gap: 8px; }
+  .homepage-hero-actions { flex-direction: column; width: 100%; gap: 10px; margin-top: 16px; }
+  .homepage-btn-primary, .homepage-btn-outline { width: 100%; justify-content: center; padding: 12px; font-size: 0.95rem; }
+  
+  .homepage-hero-info { padding: 20px 16px; border-radius: 20px; gap: 12px; }
+  .homepage-info-stat-card { padding: 10px 4px; border-radius: 12px; }
+  .homepage-info-stat-value { font-size: 18px; }
+  .homepage-info-stat-label { font-size: 9px; }
+  .homepage-info-address-card { padding: 12px; border-radius: 12px; }
+  .homepage-info-icon-wrapper { width: 32px; height: 32px; font-size: 12px; }
+  .homepage-info-text { font-size: 12px; }
+  
+  .homepage-menu-filter { padding: 10px 14px !important; border-radius: 16px !important; top: 85px !important; margin-bottom: 16px !important; gap: 8px !important; }
+  .homepage-filter-title { font-size: 15px !important; margin-top: 0 !important; margin-bottom: 6px !important; }
+  .homepage-filter-pills .filter-pill { padding: 6px 12px !important; font-size: 0.8rem !important; }
+  
+  .homepage-recommendations { padding: 16px; border-radius: 20px; margin-bottom: 24px; }
+  .homepage-rec-header h3 { font-size: 18px; }
+  .homepage-rec-star { font-size: 20px; }
+  .homepage-rec-container { grid-template-columns: 1fr !important; gap: 12px; }
+  
+  .homepage-footer { padding: 32px 20px 20px 20px !important; border-radius: 24px 24px 0 0 !important; margin-top: 32px; }
+  .homepage-footer-brand h3 { font-size: 22px; }
+  .homepage-footer-brand p { font-size: 13px; }
+  .homepage-footer-links { gap: 24px !important; flex-direction: column; }
+}
+
+/* Custom Aesthetic Footer */
+.homepage-footer {
+  margin-top: 64px;
+  background: linear-gradient(135deg, var(--color-dark), #4a1510);
+  color: white;
+  padding: 64px 40px 32px 40px;
+  border-radius: 40px 40px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
+  box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.08);
+}
+
+.homepage-footer-content {
+  max-width: 1140px;
+  margin: 0 auto;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 48px;
+}
+
+.homepage-footer-brand {
+  max-width: 350px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.homepage-footer-brand h3 {
+  font-family: 'DM Serif Display', serif;
+  font-size: 28px;
+  margin: 0;
+  color: white;
+  letter-spacing: 0.5px;
+}
+
+.homepage-footer-brand p {
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.6;
+  font-size: 15px;
+  margin: 0;
+}
+
+.homepage-footer-links {
+  display: flex;
+  gap: 64px;
+  flex-wrap: wrap;
+}
+
+.footer-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.footer-section h4 {
+  font-size: 14px;
+  color: var(--color-primary-light);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin: 0 0 8px 0;
+  font-weight: 900;
+}
+
+.footer-section p {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 15px;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: color 0.2s;
+}
+
+.footer-section p:hover {
+  color: white;
+}
+
+.footer-section p i {
+  color: var(--color-primary);
+  font-size: 18px;
+  width: 24px;
+  text-align: center;
+}
+
+.homepage-footer-bottom {
+  max-width: 1140px;
+  margin: 0 auto;
+  width: 100%;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 32px;
+  text-align: center;
+}
+
+.homepage-footer-bottom p {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 14px;
+  margin: 0;
 }

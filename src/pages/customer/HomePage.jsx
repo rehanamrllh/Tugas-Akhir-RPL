@@ -8,6 +8,8 @@ import CartSidebar from './CartSidebar';
 import CheckoutModal from './CheckoutModal';
 import OrderTracker from './OrderTracker';
 import DigitalReceiptModal from './DigitalReceiptModal';
+import Button from '../../components/ui/Button';
+import Badge from '../../components/ui/Badge';
 import './HomePage.css';
 import twLogo from '../../assets/tw.jpg';
 
@@ -24,6 +26,8 @@ export default function HomePage() {
   const [isReceiptOpen, setIsReceiptOpen] = useState(false);
   const [receiptOrder, setReceiptOrder] = useState(null);
   const [trackedOrderId, setTrackedOrderId] = useState(() => sessionStorage.getItem('trackedOrderId') || null);
+  const [addedItems, setAddedItems] = useState({});
+  const [isCartBumping, setIsCartBumping] = useState(false);
 
   useEffect(() => {
     if (trackedOrderId) {
@@ -32,6 +36,22 @@ export default function HomePage() {
       sessionStorage.removeItem('trackedOrderId');
     }
   }, [trackedOrderId]);
+
+  useEffect(() => {
+    if (cartCount > 0) {
+      setIsCartBumping(true);
+      const timer = setTimeout(() => setIsCartBumping(false), 300);
+      return () => clearTimeout(timer);
+    }
+  }, [cartCount]);
+
+  const handleAdd = (item) => {
+    addToCart(item);
+    setAddedItems(prev => ({ ...prev, [item.id]: true }));
+    setTimeout(() => {
+      setAddedItems(prev => ({ ...prev, [item.id]: false }));
+    }, 1200);
+  };
 
   // Computed values
   const categoriesCount = new Set(menuItems.map(m => m.kategori)).size;
@@ -51,7 +71,15 @@ export default function HomePage() {
 
   const handleReceiptClose = () => {
     setIsReceiptOpen(false);
-    setTrackedOrderId(receiptOrder.id);
+    sessionStorage.removeItem('trackedOrderId');
+    setTrackedOrderId(null);
+  };
+
+  const getValidImageUrl = (url) => {
+    if (url && url.includes('1596647209376-717013824ee1')) {
+      return 'https://images.unsplash.com/photo-1601314002592-b8734bca6604?w=400&h=300&fit=crop';
+    }
+    return url || 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=150&h=150&fit=crop';
   };
 
   return (
@@ -63,12 +91,12 @@ export default function HomePage() {
           </div>
           <div>
             <h2 className="topbar-name">{settings.namaToko || 'Twice Cafe'}</h2>
-            <p className="topbar-sub">QR Menu • Meja {new URLSearchParams(window.location.search).get('meja') || 1}</p>
+            <p className="topbar-sub">Meja {new URLSearchParams(window.location.search).get('meja') || 1}</p>
           </div>
         </div>
-        <button className="cart-btn" onClick={() => setIsCartOpen(true)}>
-          <i className="fa-solid fa-basket-shopping"></i> Keranjang <span className="cart-count">{cartCount}</span>
-        </button>
+        <Button variant="primary" className="cart-btn" onClick={() => setIsCartOpen(true)} style={{ borderRadius: '100px', fontWeight: '900', padding: '12px 24px', background: 'linear-gradient(135deg, var(--color-primary), #d81b2a)', border: 'none', color: 'white', boxShadow: '0 8px 24px rgba(155, 17, 30, 0.25)' }}>
+          <i className="fa-solid fa-basket-shopping"></i> Keranjang <span style={{ display: 'inline-block', background: 'transparent', color: 'inherit', padding: 0, boxShadow: 'none', minWidth: 'auto', marginLeft: '6px', fontSize: 'inherit' }} className={`cart-count ${isCartBumping ? 'bump' : ''}`}>{cartCount}</span>
+        </Button>
       </header>
 
       <section className="homepage-hero">
@@ -80,17 +108,17 @@ export default function HomePage() {
           
           <div className="homepage-category-chips">
             <div className="homepage-chip"><i className="fa-solid fa-mug-hot"></i> Kopi & Espresso</div>
-            <div className="homepage-chip"><i className="fa-solid fa-croissant"></i> Pastry & Roti</div>
+            <div className="homepage-chip"><i className="fa-solid fa-bread-slice"></i> Pastry & Roti</div>
             <div className="homepage-chip"><i className="fa-solid fa-cake-candles"></i> Dessert</div>
           </div>
           
           <div className="homepage-hero-actions">
-            <button className="btn-primary homepage-btn-primary" onClick={() => document.getElementById('menu').scrollIntoView({ behavior: 'smooth' })}>
-              <i className="fa-solid fa-book-open"></i> Lihat Menu
-            </button>
-            <button className="btn-outline homepage-btn-outline" onClick={() => setIsCartOpen(true)}>
-              <i className="fa-solid fa-basket-shopping"></i> Keranjang
-            </button>
+            <Button variant="primary" className="homepage-btn-primary" onClick={() => document.getElementById('menu').scrollIntoView({ behavior: 'smooth' })} icon="fa-solid fa-book-open">
+              Lihat Menu
+            </Button>
+            <Button variant="outline" className="homepage-btn-outline" onClick={() => setIsCartOpen(true)} icon="fa-solid fa-basket-shopping">
+              Keranjang
+            </Button>
           </div>
         </div>
         
@@ -138,15 +166,22 @@ export default function HomePage() {
         </div>
         <div className="homepage-filter-pills filter-pills">
           {displayCategories.map(cat => (
-            <button key={cat} className={`filter-pill ${filter === cat ? 'active' : ''}`} onClick={() => setFilter(cat)}>
-              {cat === 'Semua' && <i className="fa-solid fa-utensils"></i>}
-              {cat === 'Kopi' && <i className="fa-solid fa-mug-hot"></i>}
-              {cat === 'Non-Kopi' && <i className="fa-solid fa-glass-water"></i>}
-              {cat === 'Pastry & Roti' && <i className="fa-solid fa-croissant"></i>}
-              {cat === 'Makanan' && <i className="fa-solid fa-bowl-rice"></i>}
-              {cat === 'Dessert' && <i className="fa-solid fa-cake-candles"></i>}
+            <Badge 
+              as="button"
+              key={cat} 
+              variant="neutral" 
+              active={filter === cat} 
+              className="filter-pill" 
+              onClick={() => setFilter(cat)}
+            >
+              {cat === 'Semua' && <i className="fa-solid fa-utensils" style={{ marginRight: '6px' }}></i>}
+              {cat === 'Kopi' && <i className="fa-solid fa-mug-hot" style={{ marginRight: '6px' }}></i>}
+              {cat === 'Non-Kopi' && <i className="fa-solid fa-glass-water" style={{ marginRight: '6px' }}></i>}
+              {cat === 'Pastry & Roti' && <i className="fa-solid fa-bread-slice" style={{ marginRight: '6px' }}></i>}
+              {cat === 'Makanan' && <i className="fa-solid fa-bowl-rice" style={{ marginRight: '6px' }}></i>}
+              {cat === 'Dessert' && <i className="fa-solid fa-cake-candles" style={{ marginRight: '6px' }}></i>}
               {cat}
-            </button>
+            </Badge>
           ))}
         </div>
       </section>
@@ -164,11 +199,19 @@ export default function HomePage() {
             {itemsToShow.map(item => (
               item.tersedia !== false && (
                 <div key={item.id} className="homepage-rec-card">
-                  <img src={item.gambar || 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=150&h=150&fit=crop'} alt={item.nama} className="homepage-rec-img" />
+                  <img src={getValidImageUrl(item.gambar)} alt={item.nama} className="homepage-rec-img" />
                   <div className="homepage-rec-info">
                     <div className="homepage-rec-title">{item.nama}</div>
                     <div className="homepage-rec-price">{formatRp(item.harga)}</div>
-                    <button className="homepage-rec-btn-add" onClick={() => addToCart(item)}><i className="fa-solid fa-plus"></i> Tambah</button>
+                    <Button 
+                      variant="primary" 
+                      size="sm" 
+                      className={`homepage-rec-btn-add ${addedItems[item.id] ? 'btn-added-feedback' : ''}`} 
+                      onClick={() => handleAdd(item)} 
+                      icon={addedItems[item.id] ? "fa-solid fa-check" : "fa-solid fa-plus"}
+                    >
+                      {addedItems[item.id] ? "Ditambahkan" : "Tambah"}
+                    </Button>
                   </div>
                 </div>
               )
@@ -182,8 +225,8 @@ export default function HomePage() {
           {filteredMenu.map(item => (
             <div key={item.id} className="menu-card visible">
               <div className="card-img-wrapper">
-                {item.tersedia === false ? <span className="card-badge homepage-sold-out-badge">Habis</span> : item.badge ? <span className="card-badge">{item.badge}</span> : null}
-                <img src={item.gambar} alt={item.nama} className={`card-img ${item.tersedia === false ? 'homepage-sold-out-img' : ''}`} />
+                {item.tersedia === false ? <Badge variant="danger" className="card-badge homepage-sold-out-badge">Habis</Badge> : item.badge ? <Badge variant="warning" className="card-badge">{item.badge}</Badge> : null}
+                <img src={getValidImageUrl(item.gambar)} alt={item.nama} className={`card-img ${item.tersedia === false ? 'homepage-sold-out-img' : ''}`} />
               </div>
               <div className="card-content">
                 <h3 className={`card-title ${item.tersedia === false ? 'homepage-sold-out-text' : ''}`}>{item.nama}</h3>
@@ -194,9 +237,16 @@ export default function HomePage() {
                     <div className={`price ${item.tersedia === false ? 'homepage-sold-out-text' : ''}`}>{formatRp(item.harga)}</div>
                   </div>
                   {item.tersedia === false ? (
-                    <button className="btn-add homepage-btn-disabled" disabled>Habis</button>
+                    <Button variant="ghost" className="btn-add homepage-btn-disabled" disabled>Habis</Button>
                   ) : (
-                    <button className="btn-add" onClick={() => addToCart(item)}><i className="fa-solid fa-plus"></i> Tambah</button>
+                    <Button 
+                      variant="primary" 
+                      className={`btn-add ${addedItems[item.id] ? 'btn-added-feedback' : ''}`} 
+                      onClick={() => handleAdd(item)} 
+                      icon={addedItems[item.id] ? "fa-solid fa-check" : "fa-solid fa-plus"}
+                    >
+                      {addedItems[item.id] ? "Ditambahkan" : "Tambah"}
+                    </Button>
                   )}
                 </div>
               </div>
@@ -204,6 +254,33 @@ export default function HomePage() {
           ))}
         </div>
       </div>
+
+      <footer className="homepage-footer">
+        <div className="homepage-footer-content">
+          <div className="homepage-footer-brand">
+            <div className="store-icon" style={{ overflow: 'hidden', padding: 0, width: '56px', height: '56px', borderRadius: '16px' }}>
+              <img src={twLogo} alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            </div>
+            <h3>{settings.namaToko || 'Twice Cafe'}</h3>
+            <p>{settings.deskripsiToko || 'Nikmati sajian kopi terbaik dari kami.'}</p>
+          </div>
+          <div className="homepage-footer-links">
+            <div className="footer-section">
+              <h4>Kontak</h4>
+              <p><i className="fa-brands fa-whatsapp"></i> {settings.whatsapp || '+62 812-3456-7890'}</p>
+              <p><i className="fa-brands fa-instagram"></i> {settings.instagram || '@twice.cafe'}</p>
+            </div>
+            <div className="footer-section">
+              <h4>Lokasi</h4>
+              <p><i className="fa-solid fa-location-dot"></i> {settings.alamat || 'Jl. Contoh Alamat No. 123'}</p>
+              <p><i className="fa-solid fa-clock"></i> {settings.jamBuka || '08:00 - 22:00'}</p>
+            </div>
+          </div>
+        </div>
+        <div className="homepage-footer-bottom">
+          <p>&copy; {new Date().getFullYear()} {settings.namaToko || 'Twice Cafe'}. All rights reserved.</p>
+        </div>
+      </footer>
 
       <CartSidebar isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} onCheckout={() => { setIsCartOpen(false); setIsCheckoutOpen(true); }} />
       <CheckoutModal isOpen={isCheckoutOpen} onClose={() => setIsCheckoutOpen(false)} onSuccess={handleCheckoutSuccess} />

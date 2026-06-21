@@ -16,7 +16,7 @@ function ThemeManager() {
     const isAdmin = location.pathname.startsWith('/admin');
     const link = document.getElementById('theme-style');
     if (link) {
-      link.href = isAdmin ? '/css/admin.css' : '/css/customer.css';
+      link.href = isAdmin ? '/css/admin.css?v=3.4' : '/css/customer.css?v=3.4';
     }
   }, [location.pathname]);
   return null;
