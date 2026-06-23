@@ -394,6 +394,18 @@ h6 {
   font-weight: 800;
   font-size: 0.75rem;
   z-index: 10;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.4) !important;
+  backdrop-filter: blur(4px);
+}
+
+.card-badge.ui-badge-warning {
+  background: #f39c12 !important;
+  color: white !important;
+}
+
+.card-badge.ui-badge-danger {
+  background: #e63946 !important;
+  color: white !important;
 }
 
 .card-content {

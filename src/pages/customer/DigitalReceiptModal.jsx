@@ -1,11 +1,32 @@
 import { useState, useEffect } from 'react';
 import { formatRp, formatDate } from '../../lib/utils';
 import { useSettings } from '../../hooks/useSettings';
+import { useOrders } from '../../hooks/useOrders';
 import './DigitalReceiptModal.css';
 
 export default function DigitalReceiptModal({ isOpen, order, onClose }) {
   const { settings } = useSettings();
+  const { updatePaymentStatus } = useOrders();
   const [showAnim, setShowAnim] = useState(false);
+
+  const handleLanjutkanPembayaran = () => {
+    if (order.paymentToken) {
+      window.snap.pay(order.paymentToken, {
+        onSuccess: function(result) {
+          updatePaymentStatus(order.id, 'lunas');
+        },
+        onPending: function(result) {
+          // Tetap menunggu
+        },
+        onError: function(result) {
+          updatePaymentStatus(order.id, 'batal');
+        },
+        onClose: function() {
+          // Tetap menunggu
+        }
+      });
+    }
+  };
 
   useEffect(() => {
     if (isOpen) {
@@ -26,11 +47,31 @@ export default function DigitalReceiptModal({ isOpen, order, onClose }) {
         
         <div className="dr-content">
           <div className="dr-header">
-            <div className="dr-icon-success">
-              <i className="fa-solid fa-circle-check"></i>
-            </div>
-            <h2 className="dr-title">Pesanan Berhasil!</h2>
-            <p className="dr-subtitle">Terima kasih telah memesan di {settings.namaToko || 'Twice Cafe'}</p>
+            {order.paymentStatus === 'batal' || order.statusPembayaran === 'batal' ? (
+              <>
+                <div className="dr-icon-success" style={{ color: '#ef4444', backgroundColor: 'rgba(239, 68, 68, 0.1)' }}>
+                  <i className="fa-solid fa-circle-xmark"></i>
+                </div>
+                <h2 className="dr-title">Pembayaran Gagal</h2>
+                <p className="dr-subtitle">Pesanan dibatalkan karena pembayaran tidak diselesaikan.</p>
+              </>
+            ) : (order.paymentStatus === 'menunggu' || order.statusPembayaran === 'menunggu') && order.paymentMethod === 'midtrans' ? (
+              <>
+                <div className="dr-icon-success" style={{ color: '#f59e0b', backgroundColor: 'rgba(245, 158, 11, 0.1)' }}>
+                  <i className="fa-solid fa-clock"></i>
+                </div>
+                <h2 className="dr-title">Menunggu Pembayaran</h2>
+                <p className="dr-subtitle">Selesaikan pembayaran untuk memproses pesananmu.</p>
+              </>
+            ) : (
+              <>
+                <div className="dr-icon-success">
+                  <i className="fa-solid fa-circle-check"></i>
+                </div>
+                <h2 className="dr-title">Pesanan Berhasil!</h2>
+                <p className="dr-subtitle">Terima kasih telah memesan di {settings.namaToko || 'Twice Cafe'}</p>
+              </>
+            )}
           </div>
 
           <div className="dr-divider-dash"></div>
@@ -38,7 +79,7 @@ export default function DigitalReceiptModal({ isOpen, order, onClose }) {
           <div className="dr-info-grid">
             <div>
               <div className="dr-label">No. Pesanan</div>
-              <div className="dr-val">#ORD-{order.id.toString().slice(-6)}</div>
+              <div className="dr-val">#ORD-{order.id.toString().padStart(3, '0')}</div>
             </div>
             <div>
               <div className="dr-label">Tanggal</div>
@@ -46,7 +87,7 @@ export default function DigitalReceiptModal({ isOpen, order, onClose }) {
             </div>
             <div>
               <div className="dr-label">{order.tipePesanan === 'Takeaway' ? 'Antrean' : 'Meja'}</div>
-              <div className="dr-val dr-highlight">{order.tipePesanan === 'Takeaway' ? order.id.toString().slice(-3) : order.meja}</div>
+              <div className="dr-val dr-highlight">{order.tipePesanan === 'Takeaway' ? order.id.toString().padStart(3, '0') : order.meja}</div>
             </div>
             <div>
               <div className="dr-label">Pembayaran</div>
@@ -90,7 +131,12 @@ export default function DigitalReceiptModal({ isOpen, order, onClose }) {
         {/* Bottom Decorative edge */}
         <div className="dr-edge-bottom"></div>
 
-        <button className="dr-btn-track" onClick={onClose}>
+        {order.paymentStatus === 'menunggu' && order.paymentMethod === 'midtrans' && order.paymentToken && (
+          <button className="dr-btn-pay" onClick={handleLanjutkanPembayaran} style={{ backgroundColor: '#f59e0b', color: 'white', width: '100%', border: 'none', padding: '16px', fontWeight: 'bold', fontSize: '15px', cursor: 'pointer', borderTop: '1px solid rgba(0,0,0,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+            <i className="fa-solid fa-wallet"></i> Lanjutkan Pembayaran
+          </button>
+        )}
+        <button className="dr-btn-track" onClick={onClose} style={order.paymentStatus === 'menunggu' && order.paymentToken ? { borderTop: '1px solid #eee' } : {}}>
           Pantau Pesanan Saya <i className="fa-solid fa-arrow-right"></i>
         </button>
       </div>

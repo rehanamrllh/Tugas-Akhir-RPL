@@ -21,7 +21,15 @@ export function useOrders() {
   }, []);
 
   const createOrder = (orderData) => {
-    const id = Date.now().toString();
+    let maxId = 0;
+    orders.forEach(o => {
+      const numId = parseInt(o.id, 10);
+      // Hanya menghitung ID sequential yang kecil, abaikan timestamp ID lama
+      if (!isNaN(numId) && numId < 10000000 && numId > maxId) {
+        maxId = numId;
+      }
+    });
+    const id = (maxId + 1).toString();
     const newOrder = {
       ...orderData,
       id,

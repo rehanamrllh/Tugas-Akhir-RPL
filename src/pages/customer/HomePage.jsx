@@ -59,9 +59,9 @@ export default function HomePage() {
   const recommendations = menuItems.filter(i => {
     if (!i.badge) return false;
     const b = i.badge.toLowerCase();
-    return b.includes('best seller') || b.includes('terlaris') || b.includes('pick') || b.includes('favorit') || b.includes('rekomendasi');
-  }).slice(0, 3);
-  const itemsToShow = recommendations.length > 0 ? recommendations : menuItems.slice(0, 3);
+    return b.includes('favorit') || b.includes('favorite');
+  });
+  const itemsToShow = recommendations;
 
   const handleCheckoutSuccess = (order) => {
     setIsCheckoutOpen(false);
@@ -225,7 +225,7 @@ export default function HomePage() {
           {filteredMenu.map(item => (
             <div key={item.id} className="menu-card visible">
               <div className="card-img-wrapper">
-                {item.tersedia === false ? <Badge variant="danger" className="card-badge homepage-sold-out-badge">Habis</Badge> : item.badge ? <Badge variant="warning" className="card-badge">{item.badge}</Badge> : null}
+                {item.tersedia === false ? <Badge variant="solid-danger" className="card-badge homepage-sold-out-badge">Habis</Badge> : item.badge ? <Badge variant="solid-warning" className="card-badge">{item.badge}</Badge> : null}
                 <img src={getValidImageUrl(item.gambar)} alt={item.nama} className={`card-img ${item.tersedia === false ? 'homepage-sold-out-img' : ''}`} />
               </div>
               <div className="card-content">

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { formatRp } from '../../lib/utils';
 import { useCart } from '../../hooks/useCart';
 import { useOrders } from '../../hooks/useOrders';
@@ -15,14 +15,50 @@ export default function CheckoutModal({ isOpen, onClose, onSuccess }) {
 
   const [nama, setNama] = useState('');
   const [noHp, setNoHp] = useState('');
+  const [email, setEmail] = useState('');
   const [catatan, setCatatan] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('kasir');
   const [orderType, setOrderType] = useState('dine_in');
   const [error, setError] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  
+  const namaRef = useRef(null);
 
-  const handleSubmit = () => {
+  const processCheckout = (orderData) => {
+    const newOrder = createOrder(orderData);
+
+    // Decrease stock for each item only if not cancelled
+    if (orderData.paymentStatus !== 'batal' && orderData.statusPembayaran !== 'batal') {
+      cart.forEach(cartItem => {
+        const menu = menuItems.find(m => m.id === cartItem.menuId);
+        if (menu && typeof menu.stock === 'number') {
+          const newStock = menu.stock - cartItem.qty;
+          updateMenuItem(menu.id, { 
+            ...menu, 
+            stock: newStock,
+            tersedia: newStock > 0
+          });
+        }
+      });
+    }
+
+    clearCart();
+    setNama('');
+    setNoHp('');
+    setEmail('');
+    setCatatan('');
+    setPaymentMethod('kasir');
+    setIsProcessing(false);
+    onSuccess(newOrder);
+  };
+
+  const handleSubmit = async () => {
     if (!nama.trim()) {
       setError(true);
+      if (namaRef.current) {
+        namaRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        namaRef.current.focus();
+      }
       return;
     }
     
@@ -32,49 +68,88 @@ export default function CheckoutModal({ isOpen, onClose, onSuccess }) {
     const orderData = {
       pelanggan: nama,
       noHp,
+      email,
       catatan,
       meja: orderType === 'dine_in' ? meja : '-',
       tipePesanan: orderType === 'dine_in' ? 'Dine In' : 'Takeaway',
       items: cart,
       total: cartTotal,
-      metodePembayaran: paymentMethod === 'kasir' ? 'Bayar di Kasir' : paymentMethod === 'va_bca' ? 'VA BCA' : 'Midtrans',
+      metodePembayaran: paymentMethod === 'kasir' ? 'Bayar di Kasir' : 'Midtrans',
       paymentMethod,
       statusPembayaran: paymentMethod === 'kasir' ? 'belum_bayar' : 'menunggu',
       paymentStatus: paymentMethod === 'kasir' ? 'belum_bayar' : 'menunggu',
     };
 
-    const newOrder = createOrder(orderData);
-
-    // Decrease stock for each item
-    cart.forEach(cartItem => {
-      const menu = menuItems.find(m => m.id === cartItem.menuId);
-      if (menu && typeof menu.stock === 'number') {
-        const newStock = menu.stock - cartItem.qty;
-        updateMenuItem(menu.id, { 
-          ...menu, 
-          stock: newStock,
-          tersedia: newStock > 0
+    if (paymentMethod === 'midtrans') {
+      setIsProcessing(true);
+      try {
+        const response = await fetch('/api/payment', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            order_id: `ORDER-${Date.now()}`,
+            gross_amount: cartTotal,
+            customer_details: {
+              first_name: nama,
+              phone: noHp
+            },
+            item_details: cart.map(item => ({
+              id: item.menuId,
+              price: item.harga,
+              quantity: item.qty,
+              name: item.nama
+            }))
+          })
         });
+
+        const data = await response.json();
+        
+        if (data.token) {
+          orderData.paymentToken = data.token;
+          window.snap.pay(data.token, {
+            onSuccess: function(result) {
+              orderData.statusPembayaran = 'lunas';
+              orderData.paymentStatus = 'lunas';
+              processCheckout(orderData);
+            },
+            onPending: function(result) {
+              orderData.statusPembayaran = 'menunggu';
+              orderData.paymentStatus = 'menunggu';
+              processCheckout(orderData);
+            },
+            onError: function(result) {
+              orderData.statusPembayaran = 'batal';
+              orderData.paymentStatus = 'batal';
+              processCheckout(orderData);
+            },
+            onClose: function() {
+              orderData.statusPembayaran = 'menunggu';
+              orderData.paymentStatus = 'menunggu';
+              processCheckout(orderData);
+            }
+          });
+        } else {
+          alert("Gagal mendapatkan token pembayaran");
+          setIsProcessing(false);
+        }
+      } catch (error) {
+        console.error("Error calling Midtrans API:", error);
+        alert("Terjadi kesalahan koneksi ke server pembayaran.");
+        setIsProcessing(false);
       }
-    });
-
-    clearCart();
-    setNama('');
-    setNoHp('');
-    setCatatan('');
-    setPaymentMethod('kasir');
-    onSuccess(newOrder);
+    } else {
+      processCheckout(orderData);
+    }
   };
-
   return (
-    <PopupModal
-      isOpen={isOpen}
-      onClose={onClose}
+    <PopupModal 
+      isOpen={isOpen} 
+      onClose={onClose} 
       title="Checkout"
-      label="KONFIRMASI PESANAN"
+      label={<>Konfirmasi Pesanan</>}
       width="600px"
+      className="checkout-modal"
     >
-      {/* Order Summary */}
       <div className="co-section">
         <div className="co-section-title"><i className="fa-solid fa-receipt"></i> Ringkasan Pesanan</div>
         <div className="co-items-list">
@@ -129,8 +204,9 @@ export default function CheckoutModal({ isOpen, onClose, onSuccess }) {
       {/* Customer Info */}
       <div className="co-section">
         <div className="co-section-title"><i className="fa-solid fa-user"></i> Informasi Pemesan</div>
-        <div className="co-form-row" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+        <div className="co-form-row" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
           <Input 
+            ref={namaRef}
             label={<>Nama Pemesan <span className="co-required">*</span></>}
             value={nama}
             onChange={(e) => { setNama(e.target.value); setError(false); }}
@@ -145,6 +221,13 @@ export default function CheckoutModal({ isOpen, onClose, onSuccess }) {
             placeholder="08xxxxxxxxxx"
           />
         </div>
+        <Input 
+          label={<>Email Pengiriman Nota <span className="co-optional">(opsional)</span></>}
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="contoh@email.com"
+        />
       </div>
 
       <div className="co-divider"></div>
@@ -173,18 +256,6 @@ export default function CheckoutModal({ isOpen, onClose, onSuccess }) {
             <div className="co-pay-check"><i className="fa-solid fa-circle-check"></i></div>
           </label>
 
-          <label className={`co-payment-card ${paymentMethod === 'va_bca' ? 'selected' : ''}`}>
-            <input type="radio" name="paymentMethod" value="va_bca" checked={paymentMethod === 'va_bca'} onChange={(e) => setPaymentMethod(e.target.value)} className="co-radio-hidden" />
-            <div className="co-pay-icon co-pay-icon-va">
-              <i className="fa-solid fa-building-columns"></i>
-            </div>
-            <div className="co-pay-info">
-              <div className="co-pay-name">Transfer VA BCA</div>
-              <div className="co-pay-desc">Virtual Account Bank BCA</div>
-            </div>
-            <div className="co-pay-check"><i className="fa-solid fa-circle-check"></i></div>
-          </label>
-
           <label className={`co-payment-card ${paymentMethod === 'midtrans' ? 'selected' : ''}`}>
             <input type="radio" name="paymentMethod" value="midtrans" checked={paymentMethod === 'midtrans'} onChange={(e) => setPaymentMethod(e.target.value)} className="co-radio-hidden" />
             <div className="co-pay-icon co-pay-icon-midtrans">
@@ -198,20 +269,6 @@ export default function CheckoutModal({ isOpen, onClose, onSuccess }) {
           </label>
         </div>
 
-        {/* VA BCA Detail */}
-        {paymentMethod === 'va_bca' && (
-          <div className="co-pay-detail co-pay-detail-block">
-            <div className="co-pay-detail-inner">
-              <i className="fa-solid fa-circle-info co-pay-icon-color-va"></i>
-              <div>
-                <div className="co-pay-detail-title">Nomor Virtual Account BCA</div>
-                <div className="co-pay-detail-num">1234 5678 9012 3456</div>
-                <div className="co-pay-detail-sub">Transfer sesuai total pesanan. Bukti transfer akan diverifikasi kasir.</div>
-              </div>
-            </div>
-          </div>
-        )}
-
         {/* Midtrans Detail */}
         {paymentMethod === 'midtrans' && (
           <div className="co-pay-detail co-pay-detail-block">
@@ -219,7 +276,7 @@ export default function CheckoutModal({ isOpen, onClose, onSuccess }) {
               <i className="fa-solid fa-circle-info co-pay-icon-color-midtrans"></i>
               <div>
                 <div className="co-pay-detail-title">Pembayaran via Midtrans</div>
-                <div className="co-pay-detail-sub">Setelah checkout, kamu akan mendapat link pembayaran via WhatsApp / email untuk menyelesaikan transaksi.</div>
+                <div className="co-pay-detail-sub">Setelah checkout, halaman pembayaran (QRIS, E-Wallet, atau Virtual Account) akan otomatis terbuka di layar untuk segera Anda bayar.</div>
               </div>
             </div>
           </div>
@@ -231,8 +288,8 @@ export default function CheckoutModal({ isOpen, onClose, onSuccess }) {
           <div style={{ fontSize: '12px', color: '#666', fontWeight: 600, textTransform: 'uppercase' }}>Total Pembayaran</div>
           <div style={{ fontSize: '20px', fontWeight: 800, color: 'var(--color-primary)' }}>{formatRp(cartTotal)}</div>
         </div>
-        <Button variant="primary" size="lg" onClick={handleSubmit} icon="fa-solid fa-check">
-          Konfirmasi Pesanan
+        <Button variant="primary" size="lg" onClick={handleSubmit} icon="fa-solid fa-check" disabled={isProcessing}>
+          {isProcessing ? 'Memproses...' : 'Konfirmasi Pesanan'}
         </Button>
       </div>
 

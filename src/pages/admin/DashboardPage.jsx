@@ -93,15 +93,13 @@ export default function DashboardPage() {
   const getPaymentMethodLabel = (o) => {
     const pm = o.metodePembayaran || o.paymentMethod || 'kasir';
     if (pm === 'kasir') return 'Bayar di Kasir';
-    if (pm === 'va_bca') return 'Transfer VA BCA';
-    if (pm === 'midtrans') return 'Midtrans';
+    if (pm === 'midtrans') return 'QRIS / E-Wallet (Midtrans)';
     return pm;
   };
 
   const getPaymentMethodIcon = (o) => {
     const pm = o.metodePembayaran || o.paymentMethod || 'kasir';
     if (pm === 'kasir') return 'fa-solid fa-cash-register';
-    if (pm === 'va_bca') return 'fa-solid fa-building-columns';
     if (pm === 'midtrans') return 'fa-solid fa-bolt';
     return 'fa-solid fa-wallet';
   };
@@ -159,20 +157,16 @@ export default function DashboardPage() {
   }, [orders]);
 
   const paymentMethodStats = useMemo(() => {
-    const stats = { Kasir: 0, Midtrans: 0, QRIS: 0, VA: 0 };
+    const stats = { Kasir: 0, Midtrans: 0 };
     orders.forEach(o => {
-      const pm = o.paymentMethod || (o.metodePembayaran === 'Bayar di Kasir' ? 'kasir' : o.metodePembayaran === 'VA BCA' ? 'va_bca' : o.metodePembayaran === 'Midtrans' ? 'midtrans' : 'kasir');
+      const pm = o.paymentMethod || (o.metodePembayaran === 'Bayar di Kasir' ? 'kasir' : o.metodePembayaran === 'Midtrans' ? 'midtrans' : 'kasir');
       if (pm === 'kasir') stats.Kasir++;
       else if (pm === 'midtrans') stats.Midtrans++;
-      else if (pm === 'qris') stats.QRIS++;
-      else if (pm === 'va_bca') stats.VA++;
     });
     const total = orders.length || 1;
     return [
       { label: 'Kasir', icon: 'fa-cash-register', count: stats.Kasir, pct: Math.round(stats.Kasir/total * 100) },
       { label: 'Midtrans', icon: 'fa-credit-card', count: stats.Midtrans, pct: Math.round(stats.Midtrans/total * 100) },
-      { label: 'QRIS', icon: 'fa-qrcode', count: stats.QRIS, pct: Math.round(stats.QRIS/total * 100) },
-      { label: 'VA', icon: 'fa-building-columns', count: stats.VA, pct: Math.round(stats.VA/total * 100) },
     ];
   }, [orders]);
 

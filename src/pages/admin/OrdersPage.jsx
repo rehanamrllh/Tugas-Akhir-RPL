@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useOrders } from '../../hooks/useOrders';
 import { formatRp, formatDate } from '../../lib/utils';
 import './OrdersPage.css';
@@ -5,20 +6,43 @@ import './OrdersPage.css';
 export default function OrdersPage() {
   const { orders, updateOrderStatus, updatePaymentStatus, deleteOrder } = useOrders();
 
-  const sortedOrders = [...orders].sort((a, b) => new Date(b.waktu) - new Date(a.waktu));
+  const [search, setSearch] = useState('');
+  const [filterStatus, setFilterStatus] = useState('Semua');
+  const [sortOrder, setSortOrder] = useState('Terbaru');
+  const [isCompact, setIsCompact] = useState(false);
+
+  let displayOrders = [...orders];
+
+  if (search.trim()) {
+    const query = search.toLowerCase();
+    displayOrders = displayOrders.filter(o => 
+      (o.pelanggan && o.pelanggan.toLowerCase().includes(query)) || 
+      (`#ORD-${o.id}`).toLowerCase().includes(query)
+    );
+  }
+
+  if (filterStatus !== 'Semua') {
+    displayOrders = displayOrders.filter(o => o.status === filterStatus);
+  }
+
+  displayOrders.sort((a, b) => {
+    if (sortOrder === 'Terbaru') return new Date(b.waktu) - new Date(a.waktu);
+    if (sortOrder === 'Terlama') return new Date(a.waktu) - new Date(b.waktu);
+    if (sortOrder === 'Total Tertinggi') return b.total - a.total;
+    if (sortOrder === 'Total Terendah') return a.total - b.total;
+    return 0;
+  });
 
   const getPaymentMethodLabel = (o) => {
     const pm = o.metodePembayaran || o.paymentMethod || 'kasir';
     if (pm === 'kasir') return 'Bayar di Kasir';
-    if (pm === 'va_bca') return 'Transfer VA BCA';
-    if (pm === 'midtrans') return 'Midtrans';
+    if (pm === 'midtrans') return 'QRIS / E-Wallet (Midtrans)';
     return pm;
   };
 
   const getPaymentMethodIcon = (o) => {
     const pm = o.metodePembayaran || o.paymentMethod || 'kasir';
     if (pm === 'kasir') return 'fa-solid fa-cash-register';
-    if (pm === 'va_bca') return 'fa-solid fa-building-columns';
     if (pm === 'midtrans') return 'fa-solid fa-bolt';
     return 'fa-solid fa-wallet';
   };
@@ -52,13 +76,70 @@ export default function OrdersPage() {
         </div>
       </div>
 
+      <div className="orders-toolbar" style={{ display: 'flex', gap: '12px', marginBottom: '24px', flexWrap: 'wrap', alignItems: 'center', background: 'white', padding: '16px', borderRadius: '16px', boxShadow: '0 4px 12px rgba(0,0,0,0.03)', border: '1px solid var(--color-border)' }}>
+        <div style={{ flex: 1, minWidth: '250px', position: 'relative' }}>
+          <i className="fa-solid fa-search" style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#9ca3af' }}></i>
+          <input 
+            type="text" 
+            placeholder="Cari nama pelanggan atau #ORD..." 
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            style={{ width: '100%', padding: '12px 16px 12px 42px', borderRadius: '12px', border: '1px solid #e5e7eb', background: '#f9fafb', fontSize: '14px', outline: 'none', transition: 'all 0.2s', fontWeight: 500 }}
+            onFocus={(e) => { e.target.style.borderColor = 'var(--color-primary)'; e.target.style.background = 'white'; e.target.style.boxShadow = '0 0 0 3px rgba(230, 57, 70, 0.1)'; }}
+            onBlur={(e) => { e.target.style.borderColor = '#e5e7eb'; e.target.style.background = '#f9fafb'; e.target.style.boxShadow = 'none'; }}
+          />
+        </div>
+        
+        <div style={{ position: 'relative', display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+          <div style={{ position: 'relative' }}>
+            <i className="fa-solid fa-filter" style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-primary)', fontSize: '12px' }}></i>
+            <select 
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+              style={{ padding: '12px 36px 12px 36px', borderRadius: '12px', border: '1px solid #e5e7eb', background: 'white', fontSize: '14px', outline: 'none', cursor: 'pointer', appearance: 'none', fontWeight: 600, color: '#374151' }}
+            >
+              <option value="Semua">Semua Status</option>
+              <option value="Baru">Baru</option>
+              <option value="Diproses">Diproses</option>
+              <option value="Siap">Siap</option>
+              <option value="Selesai">Selesai</option>
+              <option value="Dibatalkan">Dibatalkan</option>
+            </select>
+            <i className="fa-solid fa-chevron-down" style={{ position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)', color: '#9ca3af', fontSize: '12px', pointerEvents: 'none' }}></i>
+          </div>
+
+          <div style={{ position: 'relative' }}>
+            <i className="fa-solid fa-arrow-down-wide-short" style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-primary)', fontSize: '12px' }}></i>
+            <select 
+              value={sortOrder}
+              onChange={(e) => setSortOrder(e.target.value)}
+              style={{ padding: '12px 36px 12px 36px', borderRadius: '12px', border: '1px solid #e5e7eb', background: 'white', fontSize: '14px', outline: 'none', cursor: 'pointer', appearance: 'none', fontWeight: 600, color: '#374151' }}
+            >
+              <option value="Terbaru">Terbaru</option>
+              <option value="Terlama">Terlama</option>
+              <option value="Total Tertinggi">Total Tertinggi</option>
+              <option value="Total Terendah">Total Terendah</option>
+            </select>
+            <i className="fa-solid fa-chevron-down" style={{ position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)', color: '#9ca3af', fontSize: '12px', pointerEvents: 'none' }}></i>
+          </div>
+
+          <button 
+            onClick={() => setIsCompact(!isCompact)}
+            style={{ padding: '12px 16px', borderRadius: '12px', border: '1px solid #e5e7eb', background: isCompact ? 'var(--color-primary)' : 'white', color: isCompact ? 'white' : '#374151', fontSize: '14px', outline: 'none', cursor: 'pointer', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px', transition: 'all 0.2s' }}
+          >
+            <i className={isCompact ? "fa-solid fa-expand" : "fa-solid fa-compress"}></i>
+            {isCompact ? "Perbesar Pesanan" : "Perkecil Pesanan"}
+          </button>
+        </div>
+      </div>
+
       <div className="full-order-list">
-        {sortedOrders.length === 0 ? (
+        {displayOrders.length === 0 ? (
           <div style={{ padding: '40px', textAlign: 'center', color: 'var(--color-text-muted)', fontWeight: 700 }}>
-            Belum ada pesanan masuk.
+            Tidak ada pesanan yang sesuai.
           </div>
         ) : (
-          sortedOrders.map(o => {
+          displayOrders.map(o => {
             const payStatusRaw = o.paymentStatus || o.statusPembayaran || 'belum_bayar';
             return (
               <div key={o.id} className="oc-card">
@@ -89,8 +170,10 @@ export default function OrdersPage() {
                 </div>
                 <div className="oc-date">{formatDate(o.waktu)}{o.noHp ? ` • ${o.noHp}` : ''}</div>
 
-                <div className="oc-info-row">
-                  <div className="oc-info-box">
+                {!isCompact && (
+                  <>
+                    <div className="oc-info-row">
+                      <div className="oc-info-box">
                     <div className="oc-info-icon"><i className={getPaymentMethodIcon(o)}></i></div>
                     <div>
                       <div className="oc-info-label">METODE PEMBAYARAN</div>
@@ -139,6 +222,8 @@ export default function OrdersPage() {
                     </div>
                   ))}
                 </div>
+                </>
+                )}
 
                 <div className="oc-footer">
                   <div className="oc-total">Total {formatRp(o.total)}</div>

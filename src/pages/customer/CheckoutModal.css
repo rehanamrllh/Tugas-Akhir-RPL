@@ -56,3 +56,45 @@
   background: #fef3c7 !important;
   color: #d97706 !important;
 }
+
+@media (max-width: 768px) {
+  .checkout-modal {
+    width: 95% !important;
+    max-width: 400px !important;
+    max-height: 90vh;
+  }
+  
+  .checkout-modal .ui-modal-body {
+    padding: 16px;
+  }
+  
+  .checkout-modal .co-section-title {
+    font-size: 14px;
+    margin-bottom: 12px;
+  }
+  
+  .checkout-modal .co-item-name {
+    font-size: 13px;
+  }
+  
+  .checkout-modal .co-pay-name {
+    font-size: 13px;
+  }
+  
+  .checkout-modal .co-pay-desc {
+    font-size: 11px;
+  }
+  
+  .checkout-modal .co-type-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .checkout-modal .co-payment-card {
+    padding: 10px;
+  }
+  
+  .checkout-modal .co-form-row {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+}
