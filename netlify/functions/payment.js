@@ -1,6 +1,6 @@
-const midtransClient = require('midtrans-client');
+import midtransClient from 'midtrans-client';
 
-exports.handler = async function(event, context) {
+export const handler = async function(event, context) {
   // Hanya terima POST
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, body: 'Method Not Allowed' };
