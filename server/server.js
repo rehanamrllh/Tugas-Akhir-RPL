@@ -1,4 +1,5 @@
-require('dotenv').config();
+const path = require('path');
+require('dotenv').config({ path: path.resolve(__dirname, '.env') });
 const express = require('express');
 const cors = require('cors');
 const midtransClient = require('midtrans-client');
@@ -14,7 +15,7 @@ const snap = new midtransClient.Snap({
   clientKey: process.env.MIDTRANS_CLIENT_KEY
 });
 
-app.post('/api/payment/process', async (req, res) => {
+app.post('/api/payment', async (req, res) => {
   try {
     const { order_id, gross_amount, customer_details, item_details } = req.body;
 

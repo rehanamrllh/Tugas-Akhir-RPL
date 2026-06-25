@@ -91,10 +91,11 @@ export default function CheckoutModal({ isOpen, onClose, onSuccess }) {
             gross_amount: cartTotal,
             customer_details: {
               first_name: nama,
-              phone: noHp
+              phone: noHp,
+              email: email || undefined
             },
             item_details: cart.map(item => ({
-              id: item.menuId,
+              id: String(item.menuId),
               price: item.harga,
               quantity: item.qty,
               name: item.nama
@@ -129,7 +130,7 @@ export default function CheckoutModal({ isOpen, onClose, onSuccess }) {
             }
           });
         } else {
-          alert("Gagal mendapatkan token pembayaran");
+          alert("Gagal mendapatkan token: " + (data.error || JSON.stringify(data)));
           setIsProcessing(false);
         }
       } catch (error) {

@@ -71,8 +71,10 @@ export default function HomePage() {
 
   const handleReceiptClose = () => {
     setIsReceiptOpen(false);
-    sessionStorage.removeItem('trackedOrderId');
-    setTrackedOrderId(null);
+    if (receiptOrder) {
+      setTrackedOrderId(receiptOrder.id);
+      sessionStorage.setItem('trackedOrderId', receiptOrder.id);
+    }
   };
 
   const getValidImageUrl = (url) => {

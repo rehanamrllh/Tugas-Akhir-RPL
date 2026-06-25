@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useOrders } from '../../hooks/useOrders';
 import { formatRp, formatDate } from '../../lib/utils';
+import PopupModal from '../../components/ui/PopupModal';
+import Button from '../../components/ui/Button';
 import './OrdersPage.css';
 
 export default function OrdersPage() {
@@ -10,6 +12,7 @@ export default function OrdersPage() {
   const [filterStatus, setFilterStatus] = useState('Semua');
   const [sortOrder, setSortOrder] = useState('Terbaru');
   const [isCompact, setIsCompact] = useState(false);
+  const [orderToDelete, setOrderToDelete] = useState(null);
 
   let displayOrders = [...orders];
 
@@ -227,13 +230,35 @@ export default function OrdersPage() {
 
                 <div className="oc-footer">
                   <div className="oc-total">Total {formatRp(o.total)}</div>
-                  <button className="oc-hapus-btn" onClick={() => { if(window.confirm('Hapus pesanan ini?')) deleteOrder(o.id); }}>Hapus</button>
+                  <button className="oc-hapus-btn" onClick={() => setOrderToDelete(o.id)}>Hapus</button>
                 </div>
               </div>
             );
           })
         )}
       </div>
+
+      <PopupModal
+        isOpen={!!orderToDelete}
+        onClose={() => setOrderToDelete(null)}
+        title="Hapus Pesanan?"
+        label="KONFIRMASI"
+        width="400px"
+      >
+        <p style={{ marginBottom: '24px', color: '#6b7280', lineHeight: 1.6 }}>
+          Apakah Anda yakin ingin menghapus pesanan <strong>#ORD-{orderToDelete}</strong>? Tindakan ini tidak dapat dibatalkan.
+        </p>
+        <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+          <Button variant="outline" onClick={() => setOrderToDelete(null)}>Batal</Button>
+          <Button variant="danger" onClick={() => {
+            deleteOrder(orderToDelete);
+            setOrderToDelete(null);
+          }}>
+            <i className="fa-solid fa-trash" style={{ marginRight: '8px' }}></i>
+            Ya, Hapus
+          </Button>
+        </div>
+      </PopupModal>
     </section>
   );
 }
