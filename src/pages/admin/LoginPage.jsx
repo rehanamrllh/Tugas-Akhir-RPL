@@ -28,7 +28,7 @@ export default function LoginPage() {
     if (username.toLowerCase() === 'rhn' && password === 'rhn123') {
       validUser = { name: '💀', role: 'rhn' };
     } else {
-      validUser = users.find(u => u.name.toLowerCase() === username.toLowerCase() && password === '12345');
+      validUser = users.find(u => u.name.toLowerCase() === username.toLowerCase() && (u.password === password || (!u.password && password === '12345')));
     }
 
     if (validUser) {
