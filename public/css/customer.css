@@ -1093,9 +1093,7 @@ h1, h2, h3, h4, h5, h6 {
    ============================================ */
 
 .order-tracker {
-  position: fixed;
-  bottom: 24px;
-  right: 24px;
+  position: relative;
   z-index: 150;
   width: 320px;
   background: white;
