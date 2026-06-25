@@ -107,13 +107,31 @@ export default function CheckoutModal({ isOpen, onClose, onSuccess }) {
         
         if (data.token) {
           orderData.paymentToken = data.token;
+          
+          const formatMidtransMethod = (res) => {
+            if (!res) return 'Midtrans';
+            let type = res.payment_type || 'midtrans';
+            if (type === 'bank_transfer') {
+              const bank = (res.va_numbers && res.va_numbers[0] && res.va_numbers[0].bank) || res.bank || 'BCA';
+              return `Midtrans - VA ${bank.toUpperCase()}`;
+            }
+            if (type === 'gopay') return 'Midtrans - GoPay';
+            if (type === 'qris') return 'Midtrans - QRIS';
+            if (type === 'shopeepay') return 'Midtrans - ShopeePay';
+            if (type === 'cstore') return 'Midtrans - Minimarket';
+            if (type === 'echannel') return 'Midtrans - Mandiri Bill';
+            return `Midtrans - ${type.toUpperCase()}`;
+          };
+
           window.snap.pay(data.token, {
             onSuccess: function(result) {
+              orderData.metodePembayaran = formatMidtransMethod(result);
               orderData.statusPembayaran = 'lunas';
               orderData.paymentStatus = 'lunas';
               processCheckout(orderData);
             },
             onPending: function(result) {
+              orderData.metodePembayaran = formatMidtransMethod(result);
               orderData.statusPembayaran = 'menunggu';
               orderData.paymentStatus = 'menunggu';
               processCheckout(orderData);
@@ -222,13 +240,18 @@ export default function CheckoutModal({ isOpen, onClose, onSuccess }) {
             placeholder="08xxxxxxxxxx"
           />
         </div>
-        <Input 
-          label={<>Email Pengiriman Nota <span className="co-optional">(opsional)</span></>}
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="contoh@email.com"
-        />
+        <div style={{ marginBottom: '16px' }}>
+          <Input 
+            label={<>Email Pengiriman Nota <span className="co-optional">(opsional)</span></>}
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="contoh@email.com"
+          />
+          <div style={{ fontSize: '11px', color: '#6b7280', marginTop: '6px', fontStyle: 'italic' }}>
+            <i className="fa-solid fa-circle-info"></i> Isi email Anda jika ingin menerima salinan nota digital secara otomatis setelah pembayaran lunas.
+          </div>
+        </div>
       </div>
 
       <div className="co-divider"></div>

@@ -33,7 +33,7 @@ export default function OrderTracker({ orderId, onClose }) {
         <div className="ot-header-left">
           <div className="ot-pulse-dot"></div>
           <div>
-            <div className="ot-label">TRACKING PESANAN</div>
+            <div className="ot-label">TRACKING {order.tipePesanan === 'Takeaway' || order.meja === '-' ? `ANTREAN ${order.id.toString().padStart(3, '0')}` : `MEJA ${order.meja}`}</div>
             <div className="ot-status">{currentStep.label}</div>
           </div>
         </div>

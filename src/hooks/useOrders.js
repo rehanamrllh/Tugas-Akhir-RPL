@@ -44,8 +44,31 @@ export function useOrders() {
     update(ref(db, `orders/${id}`), { status });
   };
 
-  const updatePaymentStatus = (id, statusPembayaran) => {
+  const updatePaymentStatus = async (id, statusPembayaran) => {
     update(ref(db, `orders/${id}`), { statusPembayaran, paymentStatus: statusPembayaran });
+    
+    if (statusPembayaran === 'lunas') {
+      const order = orders.find(o => o.id === id);
+      if (order && order.email) {
+        try {
+          // Ganti port jika server node jalan di port lain
+          const serverUrl = `http://localhost:5000/api/send-receipt`;
+          await fetch(serverUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              email: order.email,
+              order_id: order.id,
+              total: order.total,
+              items: order.items,
+              pelanggan: order.pelanggan
+            })
+          });
+        } catch (error) {
+          console.error('Gagal mengirim email nota:', error);
+        }
+      }
+    }
   };
 
   const deleteOrder = (id) => {
