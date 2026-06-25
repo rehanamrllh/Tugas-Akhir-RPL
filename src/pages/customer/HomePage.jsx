@@ -294,7 +294,7 @@ export default function HomePage() {
       <CheckoutModal isOpen={isCheckoutOpen} onClose={() => setIsCheckoutOpen(false)} onSuccess={handleCheckoutSuccess} />
       <DigitalReceiptModal isOpen={isReceiptOpen} order={receiptOrder} onClose={handleReceiptClose} />
       <div style={{ position: 'fixed', bottom: '20px', left: '20px', display: 'flex', flexDirection: 'column', gap: '16px', zIndex: 999 }}>
-        {trackedOrderIds.map(id => (
+        {[...trackedOrderIds].reverse().map(id => (
           <OrderTracker key={id} orderId={id} onClose={() => removeTracker(id)} />
         ))}
       </div>

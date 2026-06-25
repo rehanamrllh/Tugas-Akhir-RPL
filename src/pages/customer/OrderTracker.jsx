@@ -12,6 +12,7 @@ const ORDER_STEPS = [
 export default function OrderTracker({ orderId, onClose }) {
   const { orders } = useOrders();
   const [order, setOrder] = useState(null);
+  const [isCompact, setIsCompact] = useState(false);
 
   useEffect(() => {
     if (orderId) {
@@ -37,21 +38,30 @@ export default function OrderTracker({ orderId, onClose }) {
             <div className="ot-status">{currentStep.label}</div>
           </div>
         </div>
-        <button className="ot-close" onClick={onClose}>&times;</button>
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <button className="ot-close" onClick={() => setIsCompact(!isCompact)} style={{ fontSize: '14px', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <i className={`fa-solid ${isCompact ? 'fa-chevron-down' : 'fa-chevron-up'}`}></i>
+          </button>
+          <button className="ot-close" onClick={onClose} style={{ width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>&times;</button>
+        </div>
       </div>
 
-      <div className="ot-desc">{currentStep.desc}</div>
+      {!isCompact && (
+        <>
+          <div className="ot-desc">{currentStep.desc}</div>
 
-      {!isCanceled && (
-        <div className="ot-steps">
-          {ORDER_STEPS.map((step, i) => (
-            <div key={step.key} className={`tracker-step ${i <= statusIndex ? 'done' : ''} ${i === statusIndex ? 'active' : ''}`}>
-              <div className="ts-dot"><i className={`fa-solid ${step.icon}`}></i></div>
-              <div className="ts-label">{step.label.toUpperCase()}</div>
-              <div className={`ts-line ${i === ORDER_STEPS.length - 1 ? 'ts-line-hidden' : ''}`}></div>
+          {!isCanceled && (
+            <div className="ot-steps">
+              {ORDER_STEPS.map((step, i) => (
+                <div key={step.key} className={`tracker-step ${i <= statusIndex ? 'done' : ''} ${i === statusIndex ? 'active' : ''}`}>
+                  <div className="ts-dot"><i className={`fa-solid ${step.icon}`}></i></div>
+                  <div className="ts-label">{step.label.toUpperCase()}</div>
+                  <div className={`ts-line ${i === ORDER_STEPS.length - 1 ? 'ts-line-hidden' : ''}`}></div>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
+          )}
+        </>
       )}
     </div>
   );
