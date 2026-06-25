@@ -51,8 +51,7 @@ export function useOrders() {
       const order = orders.find(o => o.id === id);
       if (order && order.email) {
         try {
-          // Ganti port jika server node jalan di port lain
-          const serverUrl = `http://localhost:5000/api/send-receipt`;
+          const serverUrl = `/.netlify/functions/send-receipt`;
           await fetch(serverUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },

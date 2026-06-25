@@ -25,17 +25,20 @@ export default function HomePage() {
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [isReceiptOpen, setIsReceiptOpen] = useState(false);
   const [receiptOrder, setReceiptOrder] = useState(null);
-  const [trackedOrderId, setTrackedOrderId] = useState(() => sessionStorage.getItem('trackedOrderId') || null);
+  const [trackedOrderIds, setTrackedOrderIds] = useState(() => {
+    try {
+      const stored = localStorage.getItem('trackedOrderIds');
+      return stored ? JSON.parse(stored) : [];
+    } catch {
+      return [];
+    }
+  });
   const [addedItems, setAddedItems] = useState({});
   const [isCartBumping, setIsCartBumping] = useState(false);
 
   useEffect(() => {
-    if (trackedOrderId) {
-      sessionStorage.setItem('trackedOrderId', trackedOrderId);
-    } else {
-      sessionStorage.removeItem('trackedOrderId');
-    }
-  }, [trackedOrderId]);
+    localStorage.setItem('trackedOrderIds', JSON.stringify(trackedOrderIds));
+  }, [trackedOrderIds]);
 
   useEffect(() => {
     if (cartCount > 0) {
@@ -71,10 +74,13 @@ export default function HomePage() {
 
   const handleReceiptClose = () => {
     setIsReceiptOpen(false);
-    if (receiptOrder) {
-      setTrackedOrderId(receiptOrder.id);
-      sessionStorage.setItem('trackedOrderId', receiptOrder.id);
+    if (receiptOrder && !trackedOrderIds.includes(receiptOrder.id)) {
+      setTrackedOrderIds(prev => [...prev, receiptOrder.id]);
     }
+  };
+
+  const removeTracker = (id) => {
+    setTrackedOrderIds(prev => prev.filter(orderId => orderId !== id));
   };
 
   const getValidImageUrl = (url) => {
@@ -287,7 +293,11 @@ export default function HomePage() {
       <CartSidebar isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} onCheckout={() => { setIsCartOpen(false); setIsCheckoutOpen(true); }} />
       <CheckoutModal isOpen={isCheckoutOpen} onClose={() => setIsCheckoutOpen(false)} onSuccess={handleCheckoutSuccess} />
       <DigitalReceiptModal isOpen={isReceiptOpen} order={receiptOrder} onClose={handleReceiptClose} />
-      <OrderTracker orderId={trackedOrderId} onClose={() => setTrackedOrderId(null)} />
+      <div style={{ position: 'fixed', bottom: '20px', left: '20px', display: 'flex', flexDirection: 'column', gap: '16px', zIndex: 999 }}>
+        {trackedOrderIds.map(id => (
+          <OrderTracker key={id} orderId={id} onClose={() => removeTracker(id)} />
+        ))}
+      </div>
     </>
   );
 }
